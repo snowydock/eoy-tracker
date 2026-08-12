@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>End of Year Financial Tracker</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #0f1419; color: #e6e9ec; padding: 20px;
+    max-width: 780px; margin: 0 auto; line-height: 1.5;
+  }
+  h1 { font-size: 22px; margin-bottom: 4px; font-weight: 650; }
+  .sub { color: #8a929b; font-size: 13px; margin-bottom: 24px; }
+  .card { background: #1a2029; border: 1px solid #262e3a; border-radius: 12px; padding: 18px; margin-bottom: 14px; }
+  .card-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+  .card-title { font-size: 15px; font-weight: 600; letter-spacing: 0.3px; }
+  .amounts { font-size: 13px; color: #b7bec6; font-variant-numeric: tabular-nums; }
+  .amounts .cur { color: #e6e9ec; font-weight: 600; }
+  .bar-track { background: #0f1419; border-radius: 8px; height: 22px; overflow: hidden; position: relative; }
+  .bar-fill { height: 100%; border-radius: 8px; width: 0; transition: width 0.5s ease; }
+  .pct { font-size: 12px; color: #8a929b; margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+  .row label { font-size: 12px; color: #8a929b; width: 110px; }
+  input[type=number] {
+    background: #0f1419; border: 1px solid #2c3542; color: #e6e9ec;
+    border-radius: 7px; padding: 6px 9px; font-size: 13px; width: 130px; font-variant-numeric: tabular-nums;
+  }
+  input:focus { outline: none; border-color: #4a90d9; }
+  .remaining { font-size: 12px; color: #8a929b; margin-top: 4px; }
+  .remaining b { color: #e6e9ec; }
+  .g-travel { background: linear-gradient(90deg,#2dd4bf,#14b8a6); }
+  .g-housing { background: linear-gradient(90deg,#60a5fa,#3b82f6); }
+  .g-emergency { background: linear-gradient(90deg,#fbbf24,#f59e0b); }
+  .strat { background: #16202b; border: 1px solid #22303d; }
+  .strat ol { margin: 8px 0 0 20px; font-size: 13px; color: #c3cad2; }
+  .strat li { margin-bottom: 5px; }
+  .done { color: #2dd4bf; font-weight: 600; }
+</style>
+</head>
+<body>
+  <h1>End of Year Financial Tracker</h1>
+  <div class="sub">Targets to hit by Dec 31, 2026 · edit the balances as money moves</div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">✈️ Travel Fund</div>
+      <div class="amounts"><span class="cur" id="t-cur"></span> → <span id="t-goaltxt"></span></div>
+    </div>
+    <div class="bar-track"><div class="bar-fill g-travel" id="t-bar"></div></div>
+    <div class="pct" id="t-pct"></div>
+    <div class="remaining" id="t-rem"></div>
+    <div class="row"><label>Current balance</label><input type="number" id="t-input" value="6313"></div>
+    <input type="hidden" id="t-goal" value="8979">
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">🏠 Housing Fund</div>
+      <div class="amounts"><span class="cur" id="h-cur"></span> → <span id="h-goaltxt"></span></div>
+    </div>
+    <div class="bar-track"><div class="bar-fill g-housing" id="h-bar"></div></div>
+    <div class="pct" id="h-pct"></div>
+    <div class="remaining" id="h-rem"></div>
+    <div class="row"><label>Current balance</label><input type="number" id="h-input" value="91916"></div>
+    <input type="hidden" id="h-goal" value="120000">
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">🛟 Emergency Fund</div>
+      <div class="amounts"><span class="cur" id="e-cur"></span> → <span id="e-goaltxt"></span></div>
+    </div>
+    <div class="bar-track"><div class="bar-fill g-emergency" id="e-bar"></div></div>
+    <div class="pct" id="e-pct"></div>
+    <div class="remaining" id="e-rem"></div>
+    <div class="row"><label>Current balance</label><input type="number" id="e-input" value="8854"></div>
+    <input type="hidden" id="e-goal" value="20000">
+  </div>
+
+<script>
+  function fmt(n){ return '$' + Math.round(n).toLocaleString(); }
+  function update(p){
+    var cur = parseFloat(document.getElementById(p+'-input').value) || 0;
+    var goal = parseFloat(document.getElementById(p+'-goal').value) || 0;
+    var pct = goal > 0 ? Math.min(100, (cur/goal)*100) : 0;
+    document.getElementById(p+'-bar').style.width = pct + '%';
+    document.getElementById(p+'-cur').textContent = fmt(cur);
+    document.getElementById(p+'-goaltxt').textContent = fmt(goal);
+    document.getElementById(p+'-pct').textContent = pct.toFixed(1) + '% funded';
+    var rem = goal - cur;
+    var remEl = document.getElementById(p+'-rem');
+    remEl.innerHTML = rem <= 0 ? '<span class="done">&#10003; Goal reached</span>' : '<b>' + fmt(rem) + '</b> to go';
+  }
+  ['t','h','e'].forEach(function(p){
+    document.getElementById(p+'-input').addEventListener('input', function(){ update(p); });
+    document.getElementById(p+'-goal').addEventListener('input', function(){ update(p); });
+    update(p);
+  });
+</script>
+</body>
+</html>
