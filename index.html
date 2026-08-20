@@ -33,15 +33,23 @@
   .g-travel { background: linear-gradient(90deg,#2dd4bf,#14b8a6); }
   .g-housing { background: linear-gradient(90deg,#60a5fa,#3b82f6); }
   .g-emergency { background: linear-gradient(90deg,#fbbf24,#f59e0b); }
-  .strat { background: #16202b; border: 1px solid #22303d; }
-  .strat ol { margin: 8px 0 0 20px; font-size: 13px; color: #c3cad2; }
-  .strat li { margin-bottom: 5px; }
+  .accounts { font-size: 12px; color: #8a929b; margin-top: 10px; padding-left: 12px; border-left: 2px solid #2c3542; }
+  .accounts div { display: flex; justify-content: space-between; max-width: 320px; padding: 1px 0; }
+  .accounts .acct-val { color: #c3cad2; font-variant-numeric: tabular-nums; }
   .done { color: #2dd4bf; font-weight: 600; }
+  .summary {
+    display: flex; justify-content: space-between; align-items: baseline;
+    background: #16202b; border: 1px solid #2c3a48; border-radius: 12px;
+    padding: 18px 20px; margin-top: 4px;
+  }
+  .summary .s-label { font-size: 14px; font-weight: 600; letter-spacing: 0.3px; }
+  .summary .s-sub { font-size: 12px; color: #8a929b; font-weight: 400; display: block; margin-top: 2px; letter-spacing: 0; }
+  .summary .s-val { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; color: #e6e9ec; }
 </style>
 </head>
 <body>
   <h1>End of Year Financial Tracker</h1>
-  <div class="sub">Targets to hit by Dec 31, 2026 · edit the balances as money moves</div>
+  <div class="sub">Targets to hit by Dec 31, 2026 · edit the balances as money moves · funded in order top to bottom</div>
 
   <div class="card">
     <div class="card-head">
@@ -51,20 +59,8 @@
     <div class="bar-track"><div class="bar-fill g-travel" id="t-bar"></div></div>
     <div class="pct" id="t-pct"></div>
     <div class="remaining" id="t-rem"></div>
-    <div class="row"><label>Current balance</label><input type="number" id="t-input" value="6313"></div>
-    <input type="hidden" id="t-goal" value="8979">
-  </div>
-
-  <div class="card">
-    <div class="card-head">
-      <div class="card-title">🏠 Housing Fund</div>
-      <div class="amounts"><span class="cur" id="h-cur"></span> → <span id="h-goaltxt"></span></div>
-    </div>
-    <div class="bar-track"><div class="bar-fill g-housing" id="h-bar"></div></div>
-    <div class="pct" id="h-pct"></div>
-    <div class="remaining" id="h-rem"></div>
-    <div class="row"><label>Current balance</label><input type="number" id="h-input" value="91916"></div>
-    <input type="hidden" id="h-goal" value="120000">
+    <div class="row"><label>Current balance</label><input type="number" id="t-input" value="0"></div>
+    <input type="hidden" id="t-goal" value="1800">
   </div>
 
   <div class="card">
@@ -75,8 +71,30 @@
     <div class="bar-track"><div class="bar-fill g-emergency" id="e-bar"></div></div>
     <div class="pct" id="e-pct"></div>
     <div class="remaining" id="e-rem"></div>
-    <div class="row"><label>Current balance</label><input type="number" id="e-input" value="8854"></div>
+    <div class="row"><label>Current balance</label><input type="number" id="e-input" value="10000"></div>
     <input type="hidden" id="e-goal" value="20000">
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">🏠 Housing Fund</div>
+      <div class="amounts"><span class="cur" id="h-cur"></span> → <span id="h-goaltxt"></span></div>
+    </div>
+    <div class="bar-track"><div class="bar-fill g-housing" id="h-bar"></div></div>
+    <div class="pct" id="h-pct"></div>
+    <div class="remaining" id="h-rem"></div>
+    <div class="accounts">
+      <div><span>Capital One</span><span class="acct-val">$41,854</span></div>
+      <div><span>Amex</span><span class="acct-val">$25,125</span></div>
+      <div><span>E-Trade (Mike)</span><span class="acct-val">$25,000</span></div>
+    </div>
+    <div class="row"><label>Current balance</label><input type="number" id="h-input" value="91979"></div>
+    <input type="hidden" id="h-goal" value="120000">
+  </div>
+
+  <div class="summary">
+    <div class="s-label">Total left to save<span class="s-sub">across all three goals</span></div>
+    <div class="s-val" id="total-rem"></div>
   </div>
 
 <script>
@@ -92,8 +110,18 @@
     var rem = goal - cur;
     var remEl = document.getElementById(p+'-rem');
     remEl.innerHTML = rem <= 0 ? '<span class="done">&#10003; Goal reached</span>' : '<b>' + fmt(rem) + '</b> to go';
+    updateTotal();
   }
-  ['t','h','e'].forEach(function(p){
+  function updateTotal(){
+    var total = 0;
+    ['t','e','h'].forEach(function(p){
+      var cur = parseFloat(document.getElementById(p+'-input').value) || 0;
+      var goal = parseFloat(document.getElementById(p+'-goal').value) || 0;
+      total += Math.max(0, goal - cur);
+    });
+    document.getElementById('total-rem').textContent = fmt(total);
+  }
+  ['t','e','h'].forEach(function(p){
     document.getElementById(p+'-input').addEventListener('input', function(){ update(p); });
     document.getElementById(p+'-goal').addEventListener('input', function(){ update(p); });
     update(p);
